@@ -7,6 +7,24 @@
 
 //#include <TM1637.h>
 #include<math.h>
+#include<SPI.h>
+#include<Wire.h>
+#include<Adafruit_GFX.h>
+#include<Adafruit_SSD1306.h>
+#include<Adafruit_BME280.h>
+int SCREEN_WIDTH = 128;
+int SCREEN_HIGHT = 64;
+int SCREEN_ADDRESS = 0x3c;
+int OLED_RESET=4;
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HIGHT, &Wire, OLED_RESET);
+Adafruit_BME280 bme;
+float tempC;
+float tempF;
+float pressPA;
+float humidRH;
+const char degree = 0xF8;
+bool status;
+int hexAddress=0x76;
 int water = 0;
 const int button1 = 22;
 int sensor = 23;
@@ -19,25 +37,48 @@ int onOff;
 //int dio = 19;
 //TM1637 tm1637(clk,dio);
 int led = 3;
+int redled = 5;
 int mic = 14;
 int DBlevel;
 int lastTime;
 int currentTime;
+int buzzer=7;
 
 
 void setup() {
   Serial.begin(9600);
+if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+  Serial.printf("SSD1306 allocation failed");
+  }
+
+  status = bme.begin(hexAddress);
+  if(status==false){
+    Serial.printf("BME280 at address 0x%02X failed to start", hexAddress);
+  }
+
+  display.display();
+  delay(2000);
+  display.clearDisplay();
   pinMode(button1, INPUT);
   digitalWrite(sensor, OUTPUT);
   pinMode(sensorPin, OUTPUT);
   //  tm1637.init();
   //  tm1637(BRIGHT_TYPICAL);
   pinMode(led, OUTPUT);
+  pinMode(redled,OUTPUT);
   digitalWrite(led, LOW);
+  digitalWrite(redled,LOW);
   pinMode(mic, INPUT);
+  pinMode(buzzer, OUTPUT);
 }
 
 void loop() {
+  testdrawstyles();
+  tempC=bme.readTemperature();
+  pressPA=bme.readPressure();
+  humidRH=bme.readHumidity();
+
+  tempF=tempC*(9.0/5.0)+32.2;
 
   currentTime=millis();
   
@@ -47,6 +88,7 @@ void loop() {
     //lastTime = millis();
   //}
 
+  
 
   water = analogRead(sensor);
   //Serial.printf("%i\n", water);
@@ -73,4 +115,22 @@ void loop() {
     digitalWrite(led, LOW);
   }
 
+  
+
+}
+
+void testdrawstyles(void){
+  display.clearDisplay();
+
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(0,0);
+  display.printf("Temp:%0.1f%c\npressure:%0.2f\nhumid:%0.2f",tempF,degree,pressPA,humidRH);
+  display.display();
+
+  if(humidRH>65){
+    digitalWrite(redled,HIGH);
+  }else{
+    digitalWrite(redled,LOW);
+  }
 }
