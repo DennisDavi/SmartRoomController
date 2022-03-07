@@ -7,24 +7,41 @@
 
 int water=0;
 const int button1= 22;
-const int sensor=23;
+int sensor=23;
+int sensorPin=21;
 bool buttonState;
 int oldButton;
 int pushButton;
+int onOff;
 
 
 void setup() {
   Serial.begin(9600);
   pinMode(button1, INPUT);
-  pinMode(sensor, OUTPUT);
+  digitalWrite(sensor, OUTPUT);
+  pinMode(sensorPin,OUTPUT);
 
 }
 
 void loop() {
-//  water=analogRead(sensor);
-//  Serial.printf("%i\n",water);
-  buttonState=digitalRead(button1);
-  Serial.printf("%i\n",buttonState);
   
+  water=analogRead(sensor);
+  Serial.printf("%i\n",water);
+  buttonState=digitalRead(button1);
+  if (buttonState!=oldButton){
+    if(buttonState==true){
+      onOff=!onOff;
+    }else{
+      oldButton=buttonState;
+    }
+  }
+  //Serial.printf("%i\n",buttonState);
+  Serial.printf("onOff:%i\n",onOff);
+
+  if(onOff==true){
+    digitalWrite(sensorPin,HIGH);
+  }else{
+    digitalWrite(sensorPin,LOW);
+  }
 
 }
