@@ -37,12 +37,15 @@ int onOff;
 //int dio = 19;
 //TM1637 tm1637(clk,dio);
 int led = 3;
+bool ledState=led;
 int redled = 5;
 int mic = 14;
 int DBlevel;
 int lastTime;
 int currentTime;
 int buzzer = 6;
+bool buzzerState = false;
+int theTime;
 
 
 void setup() {
@@ -114,17 +117,7 @@ void loop() {
   } else {
     digitalWrite(led, LOW);
   }
-//  if (buzzer == HIGH) {
-//    digitalWrite(buzzer, HIGH);
-//    delay(10);
-//    digitalWrite(buzzer, LOW);
-//    delay(2000);
-//
-//    digitalWrite(buzzer, HIGH);
-//    delay(20);
-//    digitalWrite(buzzer, LOW);
-//    delay(1000);
-//  }
+
 
 }
 
@@ -138,17 +131,30 @@ void testdrawstyles(void) {
   display.printf("Temp:%0.1f%c\nwater sensor:%i\nhumid:%0.2f", tempF, degree, water, humidRH);
   display.display();
 
-  if (humidRH > 45) {
+
+  digitalRead(ledState);
+  if (humidRH > 45 && tempF >81 && ledState == true) {
     digitalWrite(redled, HIGH);
-    digitalWrite(buzzer, HIGH);
-  } else {
-    digitalWrite(redled, LOW);
-    digitalWrite(buzzer, LOW);
+    if (buzzerState) {
+      digitalWrite(buzzerState, true);
+    } else {
+      digitalWrite(redled, LOW);
+      digitalWrite(buzzerState, false);
+    }
+    if ((currentTime - lastTime) > theTime) {
+      buzzerState = !buzzerState;
+      if (buzzerState) {
+        digitalWrite(buzzer, HIGH);
+        theTime = 35;
+      } else {
+        digitalWrite(buzzer, LOW);
+        theTime = 2000;
+      }
+      lastTime = millis();
+    }
+
   }
 
-  //  if(redled == HIGH){
-  //    digitalWrite(buzzer,HIGH);
-  //  }else{
-  //    digitalWrite(buzzer,LOW);
-  //  }
+
+
 }
