@@ -15,7 +15,7 @@
 int SCREEN_WIDTH = 128;
 int SCREEN_HIGHT = 64;
 int SCREEN_ADDRESS = 0x3c;
-int OLED_RESET=4;
+int OLED_RESET = 4;
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HIGHT, &Wire, OLED_RESET);
 Adafruit_BME280 bme;
 float tempC;
@@ -24,7 +24,7 @@ float pressPA;
 float humidRH;
 const char degree = 0xF8;
 bool status;
-int hexAddress=0x76;
+int hexAddress = 0x76;
 int water = 0;
 const int button1 = 22;
 int sensor = 23;
@@ -42,17 +42,17 @@ int mic = 14;
 int DBlevel;
 int lastTime;
 int currentTime;
-int buzzer=7;
+int buzzer = 6;
 
 
 void setup() {
   Serial.begin(9600);
-if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
-  Serial.printf("SSD1306 allocation failed");
+  if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+    Serial.printf("SSD1306 allocation failed");
   }
 
   status = bme.begin(hexAddress);
-  if(status==false){
+  if (status == false) {
     Serial.printf("BME280 at address 0x%02X failed to start", hexAddress);
   }
 
@@ -65,30 +65,30 @@ if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
   //  tm1637.init();
   //  tm1637(BRIGHT_TYPICAL);
   pinMode(led, OUTPUT);
-  pinMode(redled,OUTPUT);
+  pinMode(redled, OUTPUT);
   digitalWrite(led, LOW);
-  digitalWrite(redled,LOW);
+  digitalWrite(redled, LOW);
   pinMode(mic, INPUT);
   pinMode(buzzer, OUTPUT);
 }
 
 void loop() {
   testdrawstyles();
-  tempC=bme.readTemperature();
-  pressPA=bme.readPressure();
-  humidRH=bme.readHumidity();
+  tempC = bme.readTemperature();
+  pressPA = bme.readPressure();
+  humidRH = bme.readHumidity();
 
-  tempF=tempC*(9.0/5.0)+32.2;
+  tempF = tempC * (9.0 / 5.0) + 32.2;
 
-  currentTime=millis();
-  
+  currentTime = millis();
+
   //if ((currentTime - lastTime) > 3000) {
-    DBlevel = analogRead(mic);
-    Serial.printf("%i\n", DBlevel);
-    //lastTime = millis();
+  DBlevel = analogRead(mic);
+  Serial.printf("DBlevel:%i\n", DBlevel);
+  //lastTime = millis();
   //}
 
-  
+
 
   water = analogRead(sensor);
   //Serial.printf("%i\n", water);
@@ -100,8 +100,8 @@ void loop() {
       oldButton = buttonState;
     }
   }
-//  Serial.printf("%i\n", buttonState);
-//  Serial.printf("onOff:%i\n", onOff);
+  //  Serial.printf("%i\n", buttonState);
+  //  Serial.printf("onOff:%i\n", onOff);
 
   if (onOff == true) {
     digitalWrite(sensorPin, HIGH);
@@ -114,23 +114,41 @@ void loop() {
   } else {
     digitalWrite(led, LOW);
   }
-
-  
+//  if (buzzer == HIGH) {
+//    digitalWrite(buzzer, HIGH);
+//    delay(10);
+//    digitalWrite(buzzer, LOW);
+//    delay(2000);
+//
+//    digitalWrite(buzzer, HIGH);
+//    delay(20);
+//    digitalWrite(buzzer, LOW);
+//    delay(1000);
+//  }
 
 }
 
-void testdrawstyles(void){
+void testdrawstyles(void) {
+  currentTime = millis();
   display.clearDisplay();
 
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
-  display.setCursor(0,0);
-  display.printf("Temp:%0.1f%c\npressure:%0.2f\nhumid:%0.2f",tempF,degree,pressPA,humidRH);
+  display.setCursor(0, 0);
+  display.printf("Temp:%0.1f%c\nwater sensor:%i\nhumid:%0.2f", tempF, degree, water, humidRH);
   display.display();
 
-  if(humidRH>65){
-    digitalWrite(redled,HIGH);
-  }else{
-    digitalWrite(redled,LOW);
+  if (humidRH > 45) {
+    digitalWrite(redled, HIGH);
+    digitalWrite(buzzer, HIGH);
+  } else {
+    digitalWrite(redled, LOW);
+    digitalWrite(buzzer, LOW);
   }
+
+  //  if(redled == HIGH){
+  //    digitalWrite(buzzer,HIGH);
+  //  }else{
+  //    digitalWrite(buzzer,LOW);
+  //  }
 }
