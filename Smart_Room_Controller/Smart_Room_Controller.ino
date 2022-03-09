@@ -12,6 +12,10 @@
 #include<Adafruit_GFX.h>
 #include<Adafruit_SSD1306.h>
 #include<Adafruit_BME280.h>
+#include<wemo.h>
+#include<Ethernet.h>
+#include<mac.h>
+#include<hue.h>
 int SCREEN_WIDTH = 128;
 int SCREEN_HIGHT = 64;
 int SCREEN_ADDRESS = 0x3c;
@@ -37,7 +41,7 @@ int onOff;
 //int dio = 19;
 //TM1637 tm1637(clk,dio);
 int led = 3;
-bool ledState=led;
+bool ledState=false;
 int redled = 5;
 int mic = 14;
 int DBlevel;
@@ -46,6 +50,8 @@ int currentTime;
 int buzzer = 6;
 bool buzzerState = false;
 int theTime;
+int wemoNum;
+int HueColor;
 
 
 void setup() {
@@ -58,6 +64,10 @@ void setup() {
   if (status == false) {
     Serial.printf("BME280 at address 0x%02X failed to start", hexAddress);
   }
+
+  Ethernet.begin(mac);
+  wemoNum=1;
+  switchON(wemoNum);
 
   display.display();
   delay(2000);
@@ -113,8 +123,10 @@ void loop() {
   }
   analogRead(water);
   if (water > 100) {
+    ledState=true;
     digitalWrite(led, HIGH);
   } else {
+    ledState=false;
     digitalWrite(led, LOW);
   }
 
@@ -132,7 +144,6 @@ void testdrawstyles(void) {
   display.display();
 
 
-  digitalRead(ledState);
   if (humidRH > 45 && tempF >81 && ledState == true) {
     digitalWrite(redled, HIGH);
     if (buzzerState) {
@@ -153,6 +164,19 @@ void testdrawstyles(void) {
       lastTime = millis();
     }
 
+  }
+  if(humidRH > 55 && ledState == true){
+    switchON(wemoNum);
+  }else{
+    switchOFF(wemoNum);
+  }
+
+  HueColor =map(tempF, 45, 100, 45000, 0);
+
+  if(ledState == true){
+    setHue(2,true,HueColor,255,255);
+  }else{
+    setHue(2,false,0,0,0);
   }
 
 
