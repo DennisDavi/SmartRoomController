@@ -159,7 +159,7 @@ void testdrawstyles(void) {
         theTime = 35;
       } else {
         digitalWrite(buzzer, LOW);
-        theTime = 2000;
+        theTime = 3000;
       }
       lastTime = millis();
     }
