@@ -5,7 +5,6 @@
    Date: March 7, 2022
 */
 
-//#include <TM1637.h>
 #include<math.h>
 #include<SPI.h>
 #include<Wire.h>
@@ -41,7 +40,7 @@ int onOff;
 //int dio = 19;
 //TM1637 tm1637(clk,dio);
 int led = 3;
-bool ledState=false;
+bool ledState = false;
 int redled = 5;
 int mic = 14;
 int DBlevel;
@@ -50,7 +49,8 @@ int currentTime;
 int buzzer = 6;
 bool buzzerState = false;
 int theTime;
-int wemoNum;
+int wemoNum1;
+int wemoNum3;
 int HueColor;
 
 
@@ -66,8 +66,10 @@ void setup() {
   }
 
   Ethernet.begin(mac);
-  wemoNum=1;
-  switchON(wemoNum);
+  wemoNum1 = 1;
+  wemoNum3 = 3;
+  switchON(wemoNum1);
+  switchON(wemoNum3);
 
   display.display();
   delay(2000);
@@ -75,8 +77,6 @@ void setup() {
   pinMode(button1, INPUT);
   digitalWrite(sensor, OUTPUT);
   pinMode(sensorPin, OUTPUT);
-  //  tm1637.init();
-  //  tm1637(BRIGHT_TYPICAL);
   pinMode(led, OUTPUT);
   pinMode(redled, OUTPUT);
   digitalWrite(led, LOW);
@@ -95,16 +95,11 @@ void loop() {
 
   currentTime = millis();
 
-  //if ((currentTime - lastTime) > 3000) {
   DBlevel = analogRead(mic);
   Serial.printf("DBlevel:%i\n", DBlevel);
-  //lastTime = millis();
-  //}
-
 
 
   water = analogRead(sensor);
-  //Serial.printf("%i\n", water);
   buttonState = digitalRead(button1);
   if (buttonState != oldButton) {
     if (buttonState == true) {
@@ -113,8 +108,7 @@ void loop() {
       oldButton = buttonState;
     }
   }
-  //  Serial.printf("%i\n", buttonState);
-  //  Serial.printf("onOff:%i\n", onOff);
+
 
   if (onOff == true) {
     digitalWrite(sensorPin, HIGH);
@@ -123,10 +117,10 @@ void loop() {
   }
   analogRead(water);
   if (water > 100) {
-    ledState=true;
+    ledState = true;
     digitalWrite(led, HIGH);
   } else {
-    ledState=false;
+    ledState = false;
     digitalWrite(led, LOW);
   }
 
@@ -144,7 +138,7 @@ void testdrawstyles(void) {
   display.display();
 
 
-  if (humidRH > 45 && tempF >81 && ledState == true) {
+  if (humidRH > 45 && tempF > 81 && ledState == true) {
     digitalWrite(redled, HIGH);
     if (buzzerState) {
       digitalWrite(buzzerState, true);
@@ -165,18 +159,30 @@ void testdrawstyles(void) {
     }
 
   }
-  if(humidRH > 55 && ledState == true){
-    switchON(wemoNum);
-  }else{
-    switchOFF(wemoNum);
+  if (humidRH > 55 && ledState == true) {
+    switchON(wemoNum1);
+    switchON(wemoNum3);
+  } else {
+    switchOFF(wemoNum1);
+    switchOFF(wemoNum3);
   }
 
-  HueColor =map(tempF, 45, 100, 45000, 0);
+  HueColor = map(tempF, 45, 100, 45000, 0);
 
-  if(ledState == true){
-    setHue(2,true,HueColor,255,255);
-  }else{
-    setHue(2,false,0,0,0);
+  if (ledState == true) {
+    setHue(1, true, HueColor, 255, 255);
+    setHue(2, true, HueColor, 255, 255);
+    setHue(3, true, HueColor, 255, 255);
+    setHue(4, true, HueColor, 255, 255);
+    setHue(5, true, HueColor, 255, 255);
+    setHue(6, true, HueColor, 255, 255);
+  } else {
+    setHue(1, false, 0, 0, 0);
+    setHue(2, false, 0, 0, 0);
+    setHue(3, false, 0, 0, 0);
+    setHue(4, false, 0, 0, 0);
+    setHue(5, false, 0, 0, 0);
+    setHue(6, false, 0, 0, 0);
   }
 
 
